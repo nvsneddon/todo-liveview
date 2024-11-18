@@ -24,7 +24,7 @@ defmodule TodoWeb.TaskLive.TaskComponent do
 
       <span class="text-gray-700"><%= @task.title %></span>
       <div phx-click="delete" phx-value-id={@task.id}>
-        <.icon name="hero-trash" class="h-4 w-4 ml-auto"/>
+        <.icon name="hero-trash" class="h-4 w-4 ml-auto" />
       </div>
     </div>
     """

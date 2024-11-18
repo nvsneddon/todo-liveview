@@ -4,6 +4,7 @@
     <.link patch={~p"/tasks/new"}>
       <.button>New Task</.button>
     </.link>
+    <.button phx-click="delete-all">Delete Completed</.button>
   </:actions>
 </.header>
 
@@ -12,7 +13,6 @@
     <.task task={task} id={dom_id} />
   <% end %>
 </div>
-
 
 <.modal :if={@live_action in [:new, :edit]} id="task-modal" show on_cancel={JS.patch(~p"/tasks")}>
   <.live_component

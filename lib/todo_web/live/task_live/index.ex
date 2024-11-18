@@ -48,6 +48,16 @@ defmodule TodoWeb.TaskLive.Index do
   end
 
   @impl true
+  def handle_event("delete-all", _params, socket) do
+    {_, deleted_tasks} = Reminders.delete_completed()
+    socket =
+      Enum.reduce(deleted_tasks, socket, fn task, acc_socket ->
+        stream_delete(acc_socket, :tasks, task)
+      end)
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("toggle", %{"id" => id}, socket) do
     task = Reminders.get_task!(id)
     {:ok, updated_task} = Reminders.update_task(task, %{complete: !task.complete})

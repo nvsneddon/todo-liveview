@@ -74,7 +74,6 @@ defmodule Todo.Reminders do
     |> Repo.update()
   end
 
-
   @doc """
   Deletes a task.
 
@@ -89,6 +88,10 @@ defmodule Todo.Reminders do
   """
   def delete_task(%Task{} = task) do
     Repo.delete(task)
+  end
+
+  def delete_completed() do
+    Repo.delete_all(from t in Task, where: t.complete, select: t)
   end
 
   @doc """
