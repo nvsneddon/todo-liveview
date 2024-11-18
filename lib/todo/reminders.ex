@@ -18,7 +18,8 @@ defmodule Todo.Reminders do
 
   """
   def list_tasks do
-    Repo.all(Task)
+    query = from t in Task, order_by: t.id
+    Repo.all(query)
   end
 
   @doc """
@@ -72,6 +73,7 @@ defmodule Todo.Reminders do
     |> Task.changeset(attrs)
     |> Repo.update()
   end
+
 
   @doc """
   Deletes a task.

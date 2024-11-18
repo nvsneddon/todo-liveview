@@ -12,7 +12,7 @@ defmodule Todo.Reminders.Task do
   @doc false
   def changeset(task, attrs) do
     task
-    |> cast(attrs, [:title])
+    |> cast(attrs, [:title, :complete])
     |> validate_required([:title])
     |> validate_length(:title, max: 100)
   end
