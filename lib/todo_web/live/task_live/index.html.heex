@@ -9,9 +9,7 @@
 
 <div id="todos-container" phx-update="stream">
   <%= for {dom_id, task} <- @streams.tasks do %>
-    <div id={dom_id}>
-      <.task task={task} />
-    </div>
+    <.task task={task} id={dom_id} />
   <% end %>
 </div>
 

@@ -50,8 +50,8 @@ defmodule TodoWeb.TaskLive.Index do
   @impl true
   def handle_event("toggle", %{"id" => id}, socket) do
     task = Reminders.get_task!(id)
-    {:ok, _} = Reminders.update_task(task, %{complete: !task.complete})
+    {:ok, updated_task} = Reminders.update_task(task, %{complete: !task.complete})
 
-    {:noreply, socket}
+    {:noreply, stream_insert(socket, :tasks, updated_task)}
   end
 end

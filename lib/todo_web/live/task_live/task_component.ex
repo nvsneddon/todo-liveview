@@ -4,7 +4,7 @@ defmodule TodoWeb.TaskLive.TaskComponent do
 
   def task(assigns) do
     ~H"""
-    <div class="flex items-center space-x-4 m-6" id={"task-#{@task.id}"}>
+    <div class="flex items-center space-x-4 m-6" id={@id}>
       <!-- Checkbox -->
       <div>
         <input
