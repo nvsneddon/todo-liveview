@@ -8,17 +8,11 @@ defmodule TodoWeb.TaskLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    IO.inspect(socket.assigns, label: "Mounting the socket")
-    stream = stream(socket, :tasks, Reminders.list_tasks())
-
-    IO.inspect(stream, label: "This is the stream")
-    {:ok, stream}
+    {:ok, stream(socket, :tasks, Reminders.list_tasks())}
   end
 
   @impl true
   def handle_params(params, _url, socket) do
-    IO.inspect(socket.assigns, label: "Handling Parameters")
-
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
@@ -42,15 +36,11 @@ defmodule TodoWeb.TaskLive.Index do
 
   @impl true
   def handle_info({TodoWeb.TaskLive.FormComponent, {:saved, task}}, socket) do
-    IO.inspect(socket.assigns, label: "Saved from form")
-
     {:noreply, stream_insert(socket, :tasks, task)}
   end
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    IO.inspect(socket.assigns, label: "Delete event")
-
     task = Reminders.get_task!(id)
     {:ok, _} = Reminders.delete_task(task)
 
@@ -59,8 +49,6 @@ defmodule TodoWeb.TaskLive.Index do
 
   @impl true
   def handle_event("toggle", %{"id" => id}, socket) do
-    IO.inspect(socket.assigns, label: "Toggle event")
-
     task = Reminders.get_task!(id)
     {:ok, _} = Reminders.update_task(task, %{complete: !task.complete})
 
