@@ -13,7 +13,7 @@ defmodule Todo.RemindersTest do
       import Todo.AccountsFixtures
 
       user = user_fixture()
-      task = task_fixture(%{user_id: user.id})
+      task = task_fixture(%{user: user})
       {:ok, task: task, user: user}
     end
 

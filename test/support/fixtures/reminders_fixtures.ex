@@ -10,16 +10,14 @@ defmodule Todo.RemindersFixtures do
   Generate a task.
   """
   def task_fixture(attrs \\ %{}) do
-    user = user_fixture()
-
-    {:ok, task} =
-      attrs
-      |> Enum.into(%{
-        complete: true,
-        title: "some title",
-        user_id: user.id
-      })
-      |> Todo.Reminders.create_task()
+    user = Map.get(attrs, :user, user_fixture())
+    
+    attrs = Enum.into(attrs, %{
+      complete: true,
+      title: "some title",
+      user_id: user.id
+    })
+    {:ok, task} =Todo.Reminders.create_task(attrs)
 
     task
   end

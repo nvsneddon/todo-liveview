@@ -24,7 +24,6 @@ defmodule Todo.Reminders.Task do
     task
     |> base_changeset(attrs)
     |> put_assoc(:user, user)
-    |> IO.inspect(label: "In user changeset")
   end
 
   defp base_changeset(task, attrs) do
