@@ -31,7 +31,9 @@ defmodule TodoWeb.UserLoginLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/users/log_in")
 
       form =
-        form(lv, "#login_form", user: %{email: user.email, password: valid_user_password(), remember_me: true})
+        form(lv, "#login_form",
+          user: %{email: user.email, password: valid_user_password(), remember_me: true}
+        )
 
       conn = submit_form(form, conn)
 

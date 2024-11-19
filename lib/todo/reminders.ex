@@ -4,6 +4,7 @@ defmodule Todo.Reminders do
   """
 
   import Ecto.Query, warn: false
+  alias Todo.Accounts.User
   alias Todo.Repo
 
   alias Todo.Reminders.Task
@@ -53,6 +54,12 @@ defmodule Todo.Reminders do
   def create_task(attrs \\ %{}) do
     %Task{}
     |> Task.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def create_task_with_user(%User{} = user, attrs \\ %{}) do
+    %Task{}
+    |> Task.changeset(user, attrs)
     |> Repo.insert()
   end
 
