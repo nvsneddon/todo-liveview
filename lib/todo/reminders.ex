@@ -90,6 +90,15 @@ defmodule Todo.Reminders do
     Repo.delete(task)
   end
 
+  @doc """
+  Deletes all tasks that are completed and returns all deleted tasks
+
+  ## Examples
+
+      iex> delete_completed(task)
+      {:ok, [%Task{}]}
+
+  """
   def delete_completed() do
     Repo.delete_all(from t in Task, where: t.complete, select: t)
   end

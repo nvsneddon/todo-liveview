@@ -26,13 +26,12 @@ defmodule TodoWeb.UserLoginLiveTest do
 
   describe "user login" do
     test "redirects if user login with valid credentials", %{conn: conn} do
-      password = "123456789abcd"
-      user = user_fixture(%{password: password})
+      user = user_fixture()
 
       {:ok, lv, _html} = live(conn, ~p"/users/log_in")
 
       form =
-        form(lv, "#login_form", user: %{email: user.email, password: password, remember_me: true})
+        form(lv, "#login_form", user: %{email: user.email, password: valid_user_password(), remember_me: true})
 
       conn = submit_form(form, conn)
 

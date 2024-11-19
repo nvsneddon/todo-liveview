@@ -50,10 +50,12 @@ defmodule TodoWeb.TaskLive.Index do
   @impl true
   def handle_event("delete-all", _params, socket) do
     {_, deleted_tasks} = Reminders.delete_completed()
+
     socket =
       Enum.reduce(deleted_tasks, socket, fn task, acc_socket ->
         stream_delete(acc_socket, :tasks, task)
       end)
+
     {:noreply, socket}
   end
 
