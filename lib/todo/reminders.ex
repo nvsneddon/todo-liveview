@@ -18,8 +18,8 @@ defmodule Todo.Reminders do
       [%Task{}, ...]
 
   """
-  def list_tasks do
-    query = from t in Task, order_by: t.id
+  def list_tasks(%User{} = user) do
+    query = from t in Task, where: t.user_id == ^user.id, order_by: t.id
     Repo.all(query)
   end
 
@@ -106,8 +106,8 @@ defmodule Todo.Reminders do
       {:ok, [%Task{}]}
 
   """
-  def delete_completed() do
-    Repo.delete_all(from t in Task, where: t.complete, select: t)
+  def delete_completed(%User{id: user_id}) do
+    Repo.delete_all(from t in Task, where: t.complete, where: t.user_id == ^user_id, select: t)
   end
 
   @doc """

@@ -5,11 +5,11 @@ defmodule Todo.RemindersTest do
 
   describe "tasks" do
     alias Todo.Reminders.Task
+    import Todo.RemindersFixtures
 
     @invalid_attrs %{complete: nil, title: nil}
 
     setup do
-      import Todo.RemindersFixtures
       import Todo.AccountsFixtures
 
       user = user_fixture()
@@ -17,8 +17,8 @@ defmodule Todo.RemindersTest do
       {:ok, task: task, user: user}
     end
 
-    test "list_tasks/0 returns all tasks", %{task: task} do
-      assert Reminders.list_tasks() == [task]
+    test "list_tasks/0 returns all tasks", %{task: task, user: user} do
+      assert Reminders.list_tasks(user) == [task]
     end
 
     test "get_task!/1 returns the task with given id", %{task: task} do
@@ -57,6 +57,15 @@ defmodule Todo.RemindersTest do
 
     test "change_task/1 returns a task changeset", %{task: task} do
       assert %Ecto.Changeset{} = Reminders.change_task(task)
+    end
+
+    test "delete_completed/0 deletes all completed tasks", %{user: user} do
+      incomplete_task = task_fixture(%{user: user, complete: false})
+      task_fixture(%{user: user, complete: true})
+
+      Reminders.delete_completed(user)
+
+      assert Reminders.list_tasks(user) == [incomplete_task]
     end
   end
 end
