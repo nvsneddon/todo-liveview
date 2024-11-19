@@ -51,16 +51,11 @@ defmodule Todo.Reminders do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_task(attrs \\ %{}) do
+  def create_task(attrs \\ %{}, user \\ nil) do
     %Task{}
-    |> Task.changeset(attrs)
+    |> Task.changeset(attrs, user)
     |> Repo.insert()
-  end
-
-  def create_task_with_user(%User{} = user, attrs \\ %{}) do
-    %Task{}
-    |> Task.changeset(user, attrs)
-    |> Repo.insert()
+    |> broadcast(:task_created)
   end
 
   @doc """
@@ -121,5 +116,19 @@ defmodule Todo.Reminders do
   """
   def change_task(%Task{} = task, attrs \\ %{}) do
     Task.changeset(task, attrs)
+  end
+
+  def subscribe(%User{id: user_id}) do
+    Phoenix.PubSub.subscribe(Todo.PubSub, "tasks" <> to_string(user_id))
+  end
+
+  def subscribe(user_id) when is_integer(user_id) do
+    Phoenix.PubSub.subscribe(Todo.PubSub, "tasks" <> to_string(user_id))
+  end
+
+  defp broadcast({:error, _} = error, _event), do: error
+  defp broadcast({:ok, task}, event) do
+    Phoenix.PubSub.broadcast(Todo.PubSub, "tasks" <> to_string(task.user_id), {event, task})
+    {:ok, task}
   end
 end

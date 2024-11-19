@@ -13,24 +13,23 @@ defmodule Todo.Reminders.Task do
   end
 
   @doc false
-  def changeset(task, attrs) do
-    task
-    |> base_changeset(attrs)
-    |> validate_required([:user_id])
-    |> foreign_key_constraint(:user_id)
-  end
-
-  def changeset(task, %User{} = user, attrs) do
-    task
-    |> base_changeset(attrs)
-    |> put_assoc(:user, user)
-  end
-
-  defp base_changeset(task, attrs) do
+  def changeset(task, attrs, user \\ nil) do
     task
     |> cast(attrs, [:title, :complete, :user_id])
     |> validate_required([:title])
     |> validate_inclusion(:complete, [true, false])
     |> validate_length(:title, max: 100)
+    |> validate_user_assoc(user)
+  end
+
+  defp validate_user_assoc(changeset, nil) do
+    changeset
+    |> validate_required([:user_id])
+    |> foreign_key_constraint(:user_id)
+  end
+
+  defp validate_user_assoc(changeset, %User{} = user) do
+    changeset
+    |> put_assoc(:user, user)
   end
 end

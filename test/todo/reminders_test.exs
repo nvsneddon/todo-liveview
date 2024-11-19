@@ -25,10 +25,18 @@ defmodule Todo.RemindersTest do
       assert Reminders.get_task!(task.id) == task
     end
 
-    test "create_task/1 with valid data creates a task", %{user: user} do
+    test "create_task/1 with valid data and user_id creates a task", %{user: user} do
       valid_attrs = %{complete: false, title: "some title", user_id: user.id}
 
       assert {:ok, %Task{} = task} = Reminders.create_task(valid_attrs)
+      assert task.complete == false
+      assert task.title == "some title"
+    end
+
+    test "create_task/1 with valid data and full user creates a task", %{user: user} do
+      valid_attrs = %{complete: false, title: "some title"}
+
+      assert {:ok, %Task{} = task} = Reminders.create_task(valid_attrs, user)
       assert task.complete == false
       assert task.title == "some title"
     end

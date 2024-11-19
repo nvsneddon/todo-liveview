@@ -8,6 +8,7 @@ defmodule TodoWeb.TaskLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket), do: Reminders.subscribe(socket.assigns.current_user)
     {:ok, stream(socket, :tasks, Reminders.list_tasks(socket.assigns.current_user))}
   end
 
@@ -36,6 +37,11 @@ defmodule TodoWeb.TaskLive.Index do
 
   @impl true
   def handle_info({TodoWeb.TaskLive.FormComponent, {:saved, task}}, socket) do
+    {:noreply, stream_insert(socket, :tasks, task)}
+  end
+
+  @impl true
+  def handle_info({:task_created, task}, socket) do
     {:noreply, stream_insert(socket, :tasks, task)}
   end
 
