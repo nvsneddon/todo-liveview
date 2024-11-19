@@ -8,7 +8,7 @@ defmodule TodoWeb.TaskLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :tasks, Reminders.list_tasks())}
+    {:ok, stream(socket, :tasks, Reminders.list_tasks(socket.assigns.current_user))}
   end
 
   @impl true
@@ -45,6 +45,18 @@ defmodule TodoWeb.TaskLive.Index do
     {:ok, _} = Reminders.delete_task(task)
 
     {:noreply, stream_delete(socket, :tasks, task)}
+  end
+
+  @impl true
+  def handle_event("delete-all", _params, socket) do
+    {_, deleted_tasks} = Reminders.delete_completed(socket.assigns.current_user)
+
+    socket =
+      Enum.reduce(deleted_tasks, socket, fn task, acc_socket ->
+        stream_delete(acc_socket, :tasks, task)
+      end)
+
+    {:noreply, socket}
   end
 
   @impl true

@@ -63,7 +63,7 @@ defmodule TodoWeb.TaskLive.FormComponent do
   end
 
   defp save_task(socket, :new, task_params) do
-    case Reminders.create_task(task_params) do
+    case Reminders.create_task_with_user(socket.assigns.current_user, task_params) do
       {:ok, task} ->
         notify_parent({:saved, task})
 

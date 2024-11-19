@@ -4,6 +4,7 @@ defmodule Todo.Reminders do
   """
 
   import Ecto.Query, warn: false
+  alias Todo.Accounts.User
   alias Todo.Repo
 
   alias Todo.Reminders.Task
@@ -17,8 +18,8 @@ defmodule Todo.Reminders do
       [%Task{}, ...]
 
   """
-  def list_tasks do
-    query = from t in Task, order_by: t.id
+  def list_tasks(%User{} = user) do
+    query = from t in Task, where: t.user_id == ^user.id, order_by: t.id
     Repo.all(query)
   end
 
@@ -56,6 +57,12 @@ defmodule Todo.Reminders do
     |> Repo.insert()
   end
 
+  def create_task_with_user(%User{} = user, attrs \\ %{}) do
+    %Task{}
+    |> Task.changeset(user, attrs)
+    |> Repo.insert()
+  end
+
   @doc """
   Updates a task.
 
@@ -74,7 +81,6 @@ defmodule Todo.Reminders do
     |> Repo.update()
   end
 
-
   @doc """
   Deletes a task.
 
@@ -89,6 +95,19 @@ defmodule Todo.Reminders do
   """
   def delete_task(%Task{} = task) do
     Repo.delete(task)
+  end
+
+  @doc """
+  Deletes all tasks that are completed and returns all deleted tasks
+
+  ## Examples
+
+      iex> delete_completed(task)
+      {:ok, [%Task{}]}
+
+  """
+  def delete_completed(%User{id: user_id}) do
+    Repo.delete_all(from t in Task, where: t.complete, where: t.user_id == ^user_id, select: t)
   end
 
   @doc """
