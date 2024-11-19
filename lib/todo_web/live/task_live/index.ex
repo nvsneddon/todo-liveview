@@ -7,8 +7,7 @@ defmodule TodoWeb.TaskLive.Index do
   import TodoWeb.TaskLive.TaskComponent
 
   @impl true
-  def mount(_params, session, socket) do
-    IO.inspect(session)
+  def mount(_params, _session, socket) do
     {:ok, stream(socket, :tasks, Reminders.list_tasks())}
   end
 
