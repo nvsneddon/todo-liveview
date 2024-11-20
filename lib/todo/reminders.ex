@@ -51,16 +51,11 @@ defmodule Todo.Reminders do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_task(attrs \\ %{}) do
+  def create_task(attrs \\ %{}, user \\ nil) do
     %Task{}
-    |> Task.changeset(attrs)
+    |> Task.changeset(attrs, user)
     |> Repo.insert()
-  end
-
-  def create_task_with_user(%User{} = user, attrs \\ %{}) do
-    %Task{}
-    |> Task.changeset(user, attrs)
-    |> Repo.insert()
+    |> broadcast(:task_created)
   end
 
   @doc """
@@ -79,6 +74,7 @@ defmodule Todo.Reminders do
     task
     |> Task.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:task_updated)
   end
 
   @doc """
@@ -94,7 +90,9 @@ defmodule Todo.Reminders do
 
   """
   def delete_task(%Task{} = task) do
-    Repo.delete(task)
+    task
+    |> Repo.delete()
+    |> broadcast(:task_deleted)
   end
 
   @doc """
@@ -107,7 +105,9 @@ defmodule Todo.Reminders do
 
   """
   def delete_completed(%User{id: user_id}) do
-    Repo.delete_all(from t in Task, where: t.complete, where: t.user_id == ^user_id, select: t)
+    from(t in Task, where: t.complete, where: t.user_id == ^user_id, select: t)
+    |> Repo.delete_all()
+    |> broadcast(:completed_tasks_deleted)
   end
 
   @doc """
@@ -121,5 +121,30 @@ defmodule Todo.Reminders do
   """
   def change_task(%Task{} = task, attrs \\ %{}) do
     Task.changeset(task, attrs)
+  end
+
+  def subscribe(%User{id: user_id}) do
+    Phoenix.PubSub.subscribe(Todo.PubSub, "tasks" <> to_string(user_id))
+  end
+
+  def subscribe(user_id) when is_integer(user_id) do
+    Phoenix.PubSub.subscribe(Todo.PubSub, "tasks" <> to_string(user_id))
+  end
+
+  defp broadcast({:error, _} = error, _event), do: error
+
+  defp broadcast({num, tasks}, :completed_tasks_deleted) when is_integer(num) do
+    Phoenix.PubSub.broadcast(
+      Todo.PubSub,
+      "tasks" <> to_string(hd(tasks).user_id),
+      {:completed_tasks_deleted, tasks}
+    )
+
+    {:ok, tasks}
+  end
+
+  defp broadcast({:ok, task}, event) do
+    Phoenix.PubSub.broadcast(Todo.PubSub, "tasks" <> to_string(task.user_id), {event, task})
+    {:ok, task}
   end
 end
