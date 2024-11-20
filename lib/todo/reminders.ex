@@ -74,6 +74,7 @@ defmodule Todo.Reminders do
     task
     |> Task.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:task_updated)
   end
 
   @doc """
@@ -89,7 +90,9 @@ defmodule Todo.Reminders do
 
   """
   def delete_task(%Task{} = task) do
-    Repo.delete(task)
+    task
+    |> Repo.delete()
+    |> broadcast(:task_deleted)
   end
 
   @doc """
@@ -102,7 +105,9 @@ defmodule Todo.Reminders do
 
   """
   def delete_completed(%User{id: user_id}) do
-    Repo.delete_all(from t in Task, where: t.complete, where: t.user_id == ^user_id, select: t)
+    from(t in Task, where: t.complete, where: t.user_id == ^user_id, select: t)
+    |> Repo.delete_all()
+    |> broadcast(:completed_tasks_deleted)
   end
 
   @doc """
@@ -127,6 +132,17 @@ defmodule Todo.Reminders do
   end
 
   defp broadcast({:error, _} = error, _event), do: error
+
+  defp broadcast({num, tasks}, :completed_tasks_deleted) when is_integer(num) do
+    Phoenix.PubSub.broadcast(
+      Todo.PubSub,
+      "tasks" <> to_string(hd(tasks).user_id),
+      {:completed_tasks_deleted, tasks}
+    )
+
+    {:ok, tasks}
+  end
+
   defp broadcast({:ok, task}, event) do
     Phoenix.PubSub.broadcast(Todo.PubSub, "tasks" <> to_string(task.user_id), {event, task})
     {:ok, task}

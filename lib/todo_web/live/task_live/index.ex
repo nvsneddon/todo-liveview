@@ -41,22 +41,17 @@ defmodule TodoWeb.TaskLive.Index do
   end
 
   @impl true
-  def handle_info({:task_created, task}, socket) do
+  def handle_info({event, task}, socket) when event in [:task_created, :task_updated] do
     {:noreply, stream_insert(socket, :tasks, task)}
   end
 
   @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
-    task = Reminders.get_task!(id)
-    {:ok, _} = Reminders.delete_task(task)
-
+  def handle_info({:task_deleted, task}, socket) do
     {:noreply, stream_delete(socket, :tasks, task)}
   end
 
   @impl true
-  def handle_event("delete-all", _params, socket) do
-    {_, deleted_tasks} = Reminders.delete_completed(socket.assigns.current_user)
-
+  def handle_info({:completed_tasks_deleted, deleted_tasks}, socket) do
     socket =
       Enum.reduce(deleted_tasks, socket, fn task, acc_socket ->
         stream_delete(acc_socket, :tasks, task)
@@ -66,10 +61,25 @@ defmodule TodoWeb.TaskLive.Index do
   end
 
   @impl true
+  def handle_event("delete", %{"id" => id}, socket) do
+    task = Reminders.get_task!(id)
+    {:ok, _} = Reminders.delete_task(task)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete-all", _params, socket) do
+    Reminders.delete_completed(socket.assigns.current_user)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("toggle", %{"id" => id}, socket) do
     task = Reminders.get_task!(id)
-    {:ok, updated_task} = Reminders.update_task(task, %{complete: !task.complete})
+    {:ok, _} = Reminders.update_task(task, %{complete: !task.complete})
 
-    {:noreply, stream_insert(socket, :tasks, updated_task)}
+    {:noreply, socket}
   end
 end
