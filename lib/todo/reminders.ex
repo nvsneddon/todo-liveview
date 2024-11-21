@@ -105,7 +105,10 @@ defmodule Todo.Reminders do
 
   """
   def delete_completed(%User{id: user_id}) do
-    from(t in Task, where: t.complete, where: t.user_id == ^user_id, select: t)
+    Task
+    |> where([t], t.complete)
+    |> where([t], t.user_id == ^user_id)
+    |> select([t], t)
     |> Repo.delete_all()
     |> broadcast(:completed_tasks_deleted)
   end
